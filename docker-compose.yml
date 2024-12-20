@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  rag_service:
+    build: 
+      context: .
+      dockerfile: services/rag_service/Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+
+  classification_service:
+    build:
+      context: .
+      dockerfile: services/classification_service/Dockerfile
+    ports:
+      - "8001:8000"
+    environment:
+      - HF_TOKEN=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
+
+  marketplace_service:
+    build:
+      context: .
+      dockerfile: services/marketplace_service/Dockerfile
+    ports:
+      - "8002:8000"
+    environment:
+      - STRIPE_API_KEY=your_stripe_secret_key
+    volumes:
+      - ./marketplace.db:/app/marketplace.db
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    ports:
+      - "8501:8501"
+    depends_on:
+      - rag_service
+      - classification_service
+      - marketplace_service
